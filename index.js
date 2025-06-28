@@ -167,13 +167,13 @@ exports.decorateTerm = (Term, { React, notify }) => {
     initOverlay() {
       this._overlay = document.createElement('div');
       this._overlay.classList.add('hypercat-overlay');
-      this._termDiv.appendChild(this._overlay);
+      this._termDiv.insertBefore(this._overlay, this._termDiv.firstChild);
 
       this._canvas = document.createElement('canvas');
       this._canvas.style.position = 'absolute';
       this._canvas.style.top = '0';
       this._canvas.style.left = '0';
-      this._canvas.style.zIndex = '100';
+      this._canvas.style.zIndex = '0';
       this._canvas.style.pointerEvents = 'none';
       this._canvasContext = this._canvas.getContext('2d');
       this.resizeCanvas();
@@ -286,6 +286,9 @@ exports.decorateTerm = (Term, { React, notify }) => {
     updateVisual(typing) {
       let active = config.videoEnabled === true || (typing && config.videoEnabled === WHILE_TYPING);
       this._overlay.classList.toggle('hypercat-active', active);
+      if (this._termDiv) {
+        this._termDiv.classList.toggle('hypercat-terminal-active', active);
+      }
       this.setState({
         videoActive: active
       });
@@ -325,8 +328,16 @@ exports.decorateTerm = (Term, { React, notify }) => {
             right: 0;
             bottom: 0;
             left: 0;
-            z-index: 100;
+            z-index: -1;
             pointer-events: none;
+          }
+          
+          .hypercat-terminal-active .term_fit .term_term {
+            background: transparent !important;
+          }
+          
+          .hypercat-terminal-active > div > div {
+            background: transparent !important;
           }
           
           .hypercat-overlay.hypercat-active {
@@ -345,13 +356,13 @@ exports.decorateTerm = (Term, { React, notify }) => {
             borderWidth: 1px;
             borderColor: black;
             borderStyle: solid;
-            z-index: 101;
+            z-index: 1;
           }
           
           .hypercat-asset {
             position: absolute;
             pointerEvents: none;
-            z-index: 102;
+            z-index: 2;
           }
         `)
       ];
