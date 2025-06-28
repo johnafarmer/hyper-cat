@@ -1,4 +1,4 @@
-const electron = require('electron');
+// const electron = require('electron'); // No longer needed after config fix
 const Color = require('color');
 const path = require('path');
 const starsCssPath = path.join(__dirname, 'stars.jpg').replace(/\\/g, "/");
@@ -44,7 +44,8 @@ const pauseAudio = () => {
 
 exports.decorateTerm = (Term, { React, notify }) => {
   // There might be a better way to get this config. Nyan on.
-  config = Object.assign(config, electron.remote.app.config.getConfig().hyperCat);
+  // Fixed for newer Hyper versions - hardcoded defaults since electron.remote is deprecated
+  config = Object.assign(config, { staggerHeight: 2, rainbowMaxAlpha: 1, audioEnabled: false, videoEnabled: "whileTyping" });
 
   return class extends React.Component {
     constructor (props, context) {
@@ -166,9 +167,14 @@ exports.decorateTerm = (Term, { React, notify }) => {
     initOverlay() {
       this._overlay = document.createElement('div');
       this._overlay.classList.add('hypercat-overlay');
-      this._termDiv.insertBefore(this._overlay, this._termDiv.firstChild);
+      this._termDiv.appendChild(this._overlay);
 
       this._canvas = document.createElement('canvas');
+      this._canvas.style.position = 'absolute';
+      this._canvas.style.top = '0';
+      this._canvas.style.left = '0';
+      this._canvas.style.zIndex = '100';
+      this._canvas.style.pointerEvents = 'none';
       this._canvasContext = this._canvas.getContext('2d');
       this.resizeCanvas();
 
@@ -319,6 +325,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
             right: 0;
             bottom: 0;
             left: 0;
+            z-index: 100;
+            pointer-events: none;
           }
           
           .hypercat-overlay.hypercat-active {
@@ -337,11 +345,13 @@ exports.decorateTerm = (Term, { React, notify }) => {
             borderWidth: 1px;
             borderColor: black;
             borderStyle: solid;
+            z-index: 101;
           }
           
           .hypercat-asset {
             position: absolute;
             pointerEvents: none;
+            z-index: 102;
           }
         `)
       ];
